@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style type="text/css">
+            html, body, #stream {
+                height: 100%;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                border: 0;
+            }
+            #stream {
+                position: absolute;
+                background-color: black;
+                background-repeat: no-repeat;
+                background-size: contain;
+                background-position: center;
+                background-image: url({{ url_for('.img', camera_name=name) }});
+            }
+            #control {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                text-align: center;
+            }
+        </style>
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+    </head>
+
+    <body>
+        <div id="stream"></div>
+
+        <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+        <div id="control">
+                <script>
+                    function send_cmd(cmd) {
+                        $.ajax({
+                            url: "{{ url_for('.cmd', camera_name=name, cmd='') }}" + cmd
+                        });
+                    }
+                </script>
+
+            {% if camera.has_move_top() %}
+                <a href="javascript:send_cmd('move_top')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-carat-u ui-btn-icon-notext">Move top</a>
+                <br />
+            {% endif %}
+
+            {% if camera.has_move_left() %}
+                <a href="javascript:send_cmd('move_left')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-carat-l ui-btn-icon-notext">Move left</a>
+            {% endif %}
+
+            {% if camera.has_move_stop() %}
+                <a href="javascript:send_cmd('move_stop')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-delete ui-btn-icon-notext">Move stop</a>
+            {% endif %}
+
+            {% if camera.has_move_right() %}
+                <a href="javascript:send_cmd('move_right')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-carat-r ui-btn-icon-notext">Move right</a>
+            {% endif %}
+
+            {% if camera.has_move_bottom() %}
+                <br />
+                <a href="javascript:send_cmd('move_bottom')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-carat-d ui-btn-icon-notext">Move bottom</a>
+            {% endif %}
+            <br /><br />
+
+            {% if camera.has_zoom_in() %}
+                <a href="javascript:send_cmd('zoom_in')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-plus ui-btn-icon-notext">Zoom in</a>
+            {% endif %}
+
+            {% if camera.has_zoom_out() %}
+                <a href="javascript:send_cmd('zoom_out')" class="ui-btn ui-btn-inlineui-corner-all ui-icon-minus ui-btn-icon-notext">Zoom out</a>
+            {% endif %}
+        </div>
+
+        {% if not camera.has_streaming() %}
+            <script>
+                setInterval( function(){
+                    var img = $("#stream");
+                    img.css("background-image", "url({{ url_for('.img', camera_name=name) }}?" + Date.now() + ")");
+                }, {{ camera.snapshot_cache }} * 1000 );
+            </script>
+        {% endif %}
+    </body>
+</html>
