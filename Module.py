@@ -60,15 +60,25 @@ class Module(BaseModule):
         if not camera:
             return
 
-        if cmd not in ('move_top', 'move_left', 'move_right', 'move_bottom',
-                       'move_stop', 'zoom_in', 'zoom_out'):
+        # is valid ?
+        if cmd.replace('start_', '') not in (
+                'move_top', 'move_left', 'move_right', 'move_bottom',
+                'move_stop', 'zoom_in', 'zoom_out'):
             return
 
+        # exec
         handler = getattr(camera, cmd, None)
         if not handler:
             return
 
         handler()
+
+        # start move
+        handler = getattr(camera, 'move_stop', None)
+        if not cmd.startswith('start_') and handler:
+            time.sleep(0.5)
+            handler()
+
         return 'ok'
 
     def _img(self, camera_name, size=()):
