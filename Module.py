@@ -58,26 +58,26 @@ class Module(BaseModule):
         camera = self.get_camera_list().get(camera_name)
 
         if not camera:
-            return
+            return ''
 
         # is valid ?
-        if cmd.replace('start_', '') not in (
+        handler_name = cmd.replace('start_', '')
+        if handler_name not in (
                 'move_top', 'move_left', 'move_right', 'move_bottom',
                 'move_stop', 'zoom_in', 'zoom_out'):
-            return
+            return ''
 
         # exec
-        handler = getattr(camera, cmd, None)
+        handler = getattr(camera, handler_name, None)
         if not handler:
-            return
+            return ''
 
         handler()
 
-        # start move
-        handler = getattr(camera, 'move_stop', None)
-        if not cmd.startswith('start_') and handler:
+        # stop move
+        if not cmd.startswith('start_') and camera.has_move_stop():
             time.sleep(0.5)
-            handler()
+            camera.move_stop()
 
         return 'ok'
 

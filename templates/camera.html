@@ -36,43 +36,76 @@
         <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 
         <div id="control">
-                <script>
-                    function send_cmd(cmd) {
-                        $.ajax({
-                            url: "{{ url_for('.cmd', camera_name=name, cmd='') }}" + cmd
+            <script>
+                var last_key = 0;
+
+                function register_key(key, cmd) {
+                    $(document).keydown(function(e) {
+                        console.log(last_key + ' '+ e.which + ' ' + cmd);
+                        if (e.which != key  || last_key == key)
+                            return;
+
+                        last_key = key;
+                        send_cmd('start_' + cmd);
+                        e.preventDefault();
+                        return false;
+                    });
+
+                    {% if camera.has_move_stop() %}
+                        $(document).keyup(function(e) {
+                            if (e.which != key)
+                                return;
+
+                            last_key = 0;
+                            send_cmd('move_stop');
+                            e.preventDefault();
                         });
-                    }
-                </script>
+                    {% endif %}
+                }
+
+                function send_cmd(cmd) {
+                    $.ajax({
+                        url: "{{ url_for('.cmd', camera_name=name, cmd='') }}" + cmd
+                    });
+                }
+            </script>
 
             {% if camera.has_move_top() %}
                 <a href="javascript:send_cmd('move_top')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-carat-u ui-btn-icon-notext">Move top</a>
+                <script>register_key(38, 'move_top')</script>
                 <br />
             {% endif %}
 
             {% if camera.has_move_left() %}
                 <a href="javascript:send_cmd('move_left')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-carat-l ui-btn-icon-notext">Move left</a>
+                <script>register_key(37, 'move_left')</script>
             {% endif %}
 
             {% if camera.has_move_stop() %}
                 <a href="javascript:send_cmd('move_stop')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-delete ui-btn-icon-notext">Move stop</a>
+                <script>register_key(32, 'move_stop')</script>
             {% endif %}
 
             {% if camera.has_move_right() %}
                 <a href="javascript:send_cmd('move_right')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-carat-r ui-btn-icon-notext">Move right</a>
+                <script>register_key(39, 'move_right')</script>
             {% endif %}
 
             {% if camera.has_move_bottom() %}
                 <br />
                 <a href="javascript:send_cmd('move_bottom')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-carat-d ui-btn-icon-notext">Move bottom</a>
+                <script>register_key(40, 'move_bottom')</script>
             {% endif %}
             <br /><br />
 
             {% if camera.has_zoom_in() %}
                 <a href="javascript:send_cmd('zoom_in')" class="ui-btn ui-btn-inline ui-corner-all ui-icon-plus ui-btn-icon-notext">Zoom in</a>
+                <script>register_key(107, 'zoom_in')</script>
             {% endif %}
 
             {% if camera.has_zoom_out() %}
                 <a href="javascript:send_cmd('zoom_out')" class="ui-btn ui-btn-inlineui-corner-all ui-icon-minus ui-btn-icon-notext">Zoom out</a>
+                <script>register_key(109, 'zoom_out')</script>
             {% endif %}
         </div>
 
