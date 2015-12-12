@@ -1,7 +1,7 @@
 import os
 import time
 from flask import abort, Blueprint, redirect, render_template, Response, \
-    send_file, url_for
+    send_file, stream_with_context, url_for
 from io import BytesIO
 
 from core import ModuleManager
@@ -105,8 +105,9 @@ class Module(BaseModule):
             return send_file(img_fp, mimetype='image/jpeg')
 
         # streaming
-        return Response(self.__streaming(camera),
-                        mimetype='multipart/x-mixed-replace; boundary=frame')
+        req = camera.get_streaming()
+        return Response(stream_with_context(req.iter_content(1024)),
+                        content_type=req.headers['content-type'])
 
     def _index(self):
         """Index page"""
@@ -115,7 +116,7 @@ class Module(BaseModule):
         if not camera_list:
             return render_template('message.html', message='No camera found')
 
-        if len(camera_list) :#> 1:
+        if len(camera_list) > 1:
             return redirect(url_for('.list'))
 
         return redirect(url_for('.view', camera_name=list(camera_list)[0]))
@@ -136,9 +137,3 @@ class Module(BaseModule):
             return render_template('message.html', message='Camera not found')
 
         return render_template('camera.html', name=camera_name, camera=camera)
-
-    def __streaming(self, camera):
-        while True:
-            frame = camera.get_streaming()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
