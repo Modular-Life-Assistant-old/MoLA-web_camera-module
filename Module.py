@@ -105,6 +105,7 @@ class Module(BaseModule):
             return send_file(img_fp, mimetype='image/jpeg')
 
         # streaming
+        self.fire('acces', type='camera_stream', camera=camera)
         req = camera.get_streaming()
         return Response(stream_with_context(req.iter_content(1024)),
                         content_type=req.headers['content-type'])
