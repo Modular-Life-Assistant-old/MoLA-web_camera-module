@@ -1,21 +1,21 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="ui-grid-d ui-responsive">
-        {% for camera_name in cameras %}
-            <div class="ui-block-{{ loop.cycle('a', 'b', 'c', 'd') }} ui-body ui-body-a ui-corner-all">
-                <div class="ui-bar ui-bar-a">
-                    <h3><a href="{{ url_for('.view', camera_name=camera_name) }}" target="content">{{ camera_name }}</a></h3>
-                </div>
-
-                <a href="{{ url_for('.view', camera_name=camera_name) }}" target="content"><img width="100%" id="{{ camera_name }}-img" src="{{ url_for('.thumbnail', camera_name=camera_name) }}" /></a>
+    {% for camera_name in cameras %}
+        <div class="ui-block-{{ loop.cycle('a', 'b', 'c', 'd') }} ui-body ui-body-a ui-corner-all">
+            <div class="ui-bar ui-bar-a">
+                <h3><a href="{{ url_for('.view', camera_name=camera_name) }}" target="content">{{ camera_name }}</a></h3>
             </div>
 
-            <script>
-                setInterval( function(){
-                    $("#{{ camera_name }}-img").attr("src", "{{ url_for('.thumbnail', camera_name=camera_name) }}?" + Date.now());
-                    console.log($("img #{{ camera_name }}").attr("src"));
-                }, {{ cameras[camera_name].snapshot_cache }} * 1000 );
-            </script>
-        {% endfor %}
-    </div>
+            <a href="{{ url_for('.view', camera_name=camera_name) }}" target="content"><img width="100%" id="{{ camera_name }}-img" src="{{ url_for('.thumbnail', camera_name=camera_name) }}" /></a>
+        </div>
+
+        <script>
+            setInterval( function(){
+                $("#{{ camera_name }}-img").attr("src", "{{ url_for('.thumbnail', camera_name=camera_name) }}?" + Date.now());
+                console.log($("img #{{ camera_name }}").attr("src"));
+            }, {{ cameras[camera_name].snapshot_cache }} * 1000 );
+        </script>
+    {% endfor %}
+</div>
 {% endblock %}
